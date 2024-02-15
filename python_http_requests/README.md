@@ -53,3 +53,26 @@ Riprendendo l'esempio di prima, effettuando la richiesta specificata, il server,
 Nel caso in cui una risorsa non fosse disponibile, il server ritornera' una risposta con lo status code uguale a 404 (NOT FOUND).
 
 [Torna all'indice ↑](#indice)
+
+## Struttura di una richiesta
+
+Per far si' che il server possa processare la richiesta di un client in maniera corretta, questa deve avere una struttura ben precisa.
+Sebbene ogni richiesta abbia dei parametri specifici, tutte le richieste hanno una forma comune, la quale comprende:
+- gli headers della richiesta
+- il body della richiesta
+
+All'interno dell'header, si possono trovare i parametri di intestazione della richiesta, i quali specificano il tipo di client si sta utilizzando, cosi' come il formato della richiesta, e tante altre impostazioni.
+
+All'interno del body (o payload) della richiesta, si possono trovare i dati che devono essere inseriti o modificati riguardo la risorsa con la quale si sta interagendo, come per una richiesta POST o PUT/PATCH.
+
+[Torna all'indice ↑](#indice)
+
+## Struttura di una risposta
+
+Una volta che la richiesta da parte del client e' stata presa in carico dal server, e la sua elaborazione e' stata portata a termine, questo provvede a dare una risposta che, come per la richiesta, ha una struttura ben precisa.
+Cosi' come per il client, ogni risposta cambia nella struttura del contenuto, mantenendo sempre delle parti in comune, tra le quali:
+- gli headers della risposta
+- lo stato della risposta (status code)
+- il body della risposta
+
+[Torna all'indice ↑](#indice)
