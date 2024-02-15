@@ -38,7 +38,7 @@ dove {user_id} e' un codice identificativo dell'utente U del quale si vogliono o
 
 ## Status Codes
 Come abbiamo visto in precedenza, il processo di richiesta di una risorsa inizia con il tipo di operazione che si vuole fare verso la risorsa stessa, attraverso un metodo HTTP.<br>
-Ma come fa un client ha sapere che la richiesta e' stata presa in carico, e che, eventualmente, questa sia andata a buon fine, ritornando una risposta?
+Ma come fa un client a sapere che la richiesta e' stata presa in carico, e che, eventualmente, questa sia andata a buon fine, ritornando una risposta?<br>
 Ed e' qui che subentra lo status code, ovvero un codice numerico ritornato dal server a seguito di una richiesta dal client, il quale identifica lo stato della richiesta stessa.
 
 Anche per gli status codes ci sono differenti tipologie, le quali possono essere suddivise in:
@@ -56,10 +56,12 @@ Nel caso in cui una risorsa non fosse disponibile, il server ritornera' una risp
 
 ## Struttura di una richiesta
 
-Per far si' che il server possa processare la richiesta di un client in maniera corretta, questa deve avere una struttura ben precisa.
+Per far si' che il server possa processare la richiesta di un client in maniera corretta, questa deve avere una struttura ben precisa.<br>
 Sebbene ogni richiesta abbia dei parametri specifici, tutte le richieste hanno una forma comune, la quale comprende:
 - gli headers della richiesta
-- il body della richiesta
+- il body della richiesta (opzionale)
+- uno o piu' path parameters (opzionali)
+- uno o piu' query parameters (opzionali)
 
 All'interno dell'header, si possono trovare i parametri di intestazione della richiesta, i quali specificano il tipo di client si sta utilizzando, cosi' come il formato della richiesta, e tante altre impostazioni.
 
@@ -69,7 +71,7 @@ All'interno del body (o payload) della richiesta, si possono trovare i dati che 
 
 ## Struttura di una risposta
 
-Una volta che la richiesta da parte del client e' stata presa in carico dal server, e la sua elaborazione e' stata portata a termine, questo provvede a dare una risposta che, come per la richiesta, ha una struttura ben precisa.
+Una volta che la richiesta da parte del client e' stata presa in carico dal server, e la sua elaborazione e' stata portata a termine, questo provvede a dare una risposta che, come per la richiesta, ha una struttura ben precisa.<br>
 Cosi' come per il client, ogni risposta cambia nella struttura del contenuto, mantenendo sempre delle parti in comune, tra le quali:
 - gli headers della risposta
 - lo stato della risposta (status code)
