@@ -66,6 +66,63 @@ All'interno dell'header, si possono trovare i parametri di intestazione della ri
 
 All'interno del body (o payload) della richiesta, si possono trovare i dati che devono essere inseriti o modificati riguardo la risorsa con la quale si sta interagendo, come per una richiesta POST o PUT/PATCH.
 
+## Parametri di una richiesta
+Un aspetto molto importante quando si utilizza il protocollo HTTP per effettuare una richiesta e' l'utilizzo dei parametri che vengono inoltrati alla stessa, tipicamente usati per filtrare i dati in maniera personalizzata.
+Esistono fondalmente due tipologie di parametri, sebbene se ne possano contare tre, ovvero:
+- parametri di percorso (o "path parameters")
+- parametri di interrogazione (o "query parameters")
+- parametri di intestazione (o "header parameters")
+
+Andiamo a vederli piu' nel dettaglio.
+
+### Path Parameters
+I path parameters sono i parametri che vengono passati nell'URL della richiesta per accedere a una risorsa con una struttura "path-like".<br>
+cio' significa che per accedere a una specifica risorsa, l'URL della richiesta deve seguire tutto il "percorso" per arrivare alla risorsa stessa.<br>
+Vediamoli con un esempio pratico.
+
+Si pensi di voler ottenere tutti i commenti di un determinato post di un determinato utente.<br>
+Scrivendo in pseudocodice queste istruzioni, otteniamo:
+
+_"Retrieve comments from post P from user U"_
+
+che, trasformato ulteriormente, diventa:
+
+```http
+GET /users/U/posts/P/comments
+```
+
+Come si puo' notare, per ottenere la risorsa richiesta, bisogna passare per tutti gli endpoint.<br>
+Questo tipo di parametri viene utilizzato prettamente quando si vuole interagire con una risorsa che ha una struttura ben specifica, la quale spesso richiede l'interazione tra piu' endpoints o modelli logici.
+
+### Query Parameters
+Cosi' come i path parameters, anche i query parameters sono presenti nell'URL della richiesta, ma, al contrario dei primi, i query parameters non hanno una struttura "path-like", bensi' formano un'associazione di tipo "key-value";
+cio' significa che per accedere a una determinata risorsa, si puo' concatenare una o piu' associazioni chiave-valore per filtrare il risultato della richiesta.
+Vediamoli con un esempio pratico.
+
+Si pensi di voler filtrare gli utenti il quale nome inizia per "A" e il cognome inizia per "B".<br>
+Scrivendo in pseudocodice queste istruzioni, otteniamo:
+
+_"Retrieve users where name like 'A' and surname like 'B'"_
+
+che, trasformato ulteriormente, diventa:
+
+```http
+GET /users?name=A%25&surname=B%25
+```
+
+Ti starai chiedendo perche' il carattere % e' stato convertito in %25.<br>
+Il motivo e' che il carattere % e' utilizzato per fare l'escape di caratteri speciali quando si utilizzano i query parameters, ed essendo il carattere % esso stesso un carattere speciale, il valore 25 corrisponde alla rappresentazione esadecimale del carattere %.
+
+Come si puo' vedere dall'esempio, l'utilizzo dei query parameters viene marcato dal carattere ?, al quale seguono una serie di associazioni chiave-valore, ovvero gli stessi query parameters.
+
+**Nota Bene:** i path parameters e i query parameters possono essere utilizzati anche insieme.
+
+Si pensi di voler filtrare i commenti di un determinato utente U su un determinato post P, nella descrizione dei quali e' presente la parola "testo":
+
+```http
+GET /users/U/posts/P/comments?description=%25testo%25
+```
+
 [Torna all'indice ↑](#indice)
 
 ## Struttura di una risposta
