@@ -67,7 +67,7 @@ All'interno dell'header, si possono trovare i parametri di intestazione della ri
 All'interno del body (o payload) della richiesta, si possono trovare i dati che devono essere inseriti o modificati riguardo la risorsa con la quale si sta interagendo, come per una richiesta POST o PUT/PATCH.
 
 ## Parametri di una richiesta
-Un aspetto molto importante quando si utilizza il protocollo HTTP per effettuare una richiesta e' l'utilizzo dei parametri che vengono inoltrati alla stessa, tipicamente usati per filtrare i dati in maniera personalizzata.
+Un aspetto molto importante quando si utilizza il protocollo HTTP per effettuare una richiesta e' l'utilizzo dei parametri che vengono inoltrati alla stessa, tipicamente usati per filtrare i dati in maniera personalizzata.<br>
 Esistono fondalmente due tipologie di parametri, sebbene se ne possano contare tre, ovvero:
 - parametri di percorso (o "path parameters")
 - parametri di interrogazione (o "query parameters")
@@ -95,7 +95,7 @@ Come si puo' notare, per ottenere la risorsa richiesta, bisogna passare per tutt
 Questo tipo di parametri viene utilizzato prettamente quando si vuole interagire con una risorsa che ha una struttura ben specifica, la quale spesso richiede l'interazione tra piu' endpoints o modelli logici.
 
 ### Query Parameters
-Cosi' come i path parameters, anche i query parameters sono presenti nell'URL della richiesta, ma, al contrario dei primi, i query parameters non hanno una struttura "path-like", bensi' formano un'associazione di tipo "key-value";
+Cosi' come i path parameters, anche i query parameters sono presenti nell'URL della richiesta, ma, al contrario dei primi, i query parameters non hanno una struttura "path-like", bensi' formano un'associazione di tipo "key-value";<br>
 cio' significa che per accedere a una determinata risorsa, si puo' concatenare una o piu' associazioni chiave-valore per filtrare il risultato della richiesta.
 Vediamoli con un esempio pratico.
 
@@ -142,7 +142,7 @@ Ora che abbiamo visto la stuttura di una richiesta e di una risposta HTTP, andia
 
 ### JSON
 Il formato piu' utilizzato per effettuare una richiesta e' il JSON, acronimo di **J**ava**S**script **Object** **N**otation.<br>
-Grazie a questo formato, ogni informazione e' rappresentata da un oggetto il quale, attraverso una struttura chiave-valore, permette al client/server di interpretare i dati in maniera corretta.
+Grazie a questo formato, ogni informazione e' rappresentata da un oggetto il quale, attraverso una struttura chiave-valore, permette al client/server di interpretare i dati in maniera corretta.<br>
 Per via della sua semplice struttura, questo tipo di formato e' altamente human-readable, dando modo di essere letto e interpretato in maniera intuitiva anche da un essere umano.
 
 
