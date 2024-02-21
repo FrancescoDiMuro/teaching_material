@@ -6,7 +6,7 @@ import requests
 BASE_URL: str = 'https://jsonplaceholder.typicode.com/'
 
 # Risorsa che vogliamo ottenere
-POSTS_ENDPOINT = 'posts'
+POSTS_ENDPOINT: str = 'posts'
 
 # ---------- Ottenimento dei titoli di tutti i posts ----------
 
