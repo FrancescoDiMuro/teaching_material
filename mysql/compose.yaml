@@ -1,0 +1,23 @@
+version: '3'
+name: cdab-service
+services:
+  cdab-client:
+    build: .
+    image: 'cdab-client-image:latest'
+    container_name: cdab-client
+    depends_on:
+      cdab-db:
+        condition: service_healthy
+  cdab-db:
+    image: mysql:latest
+    container_name: cdab-db
+    env_file:
+      - .env
+    ports:
+      - 3306:3306/tcp
+    volumes:
+      - cdab-data:/app/cdab-data
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "superuser", "-p$$MYSQL_PASSWORD"]
+volumes:
+  cdab-data:
