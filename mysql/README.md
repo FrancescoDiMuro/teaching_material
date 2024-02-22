@@ -13,6 +13,9 @@ Grazie a questa definizione, possiamo iniziare a comporre l'infrastruttura dell'
 
 ## Composizione del file compose.yaml
 Il punto di partenza per lo sviluppo di quest'applicazione e' il file [compose.yaml](compose.yaml), grazie al quale viene implementata la struttura del progetto precedentemente analizzata e descritta.<br>
+Iniziamo quindi a dare forma all'applicazione con la suddivisione dei vari servizi.
+
+### Servizio `cdab-client`
 
 python -m pip install mysql-connector-python
 
