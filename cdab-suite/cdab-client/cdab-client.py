@@ -5,6 +5,7 @@ from json import dump
 import requests
 import argparse
 
+
 # Definizione del base URL e dell'endpoint per effettuare la richiesta
 BASE_URL: str = 'https://api.open-meteo.com/v1'
 FORECAST_ENDPOINT: str = 'forecast'
@@ -42,7 +43,7 @@ def config_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def get_response_body(base_url: str, endpoint: str, parser_args: argparse.Namespace) -> dict:
+def get_response_body(base_url: str, endpoint: str, parser_args: argparse.Namespace) -> dict | None:
 
     # Ottenimento dei valori dei parametri della richiesta dalla riga di comando
     latitude: float = parser_args.lat
@@ -58,6 +59,10 @@ def get_response_body(base_url: str, endpoint: str, parser_args: argparse.Namesp
         'hourly': variables
     }
 
+    if start_date >= end_date:
+        return None
+
+    # Aggiunta dei query parameters "start_time" e "end_time" nel caso in cui siano valorizzati
     if start_date:
         query_parameters['start_date'] = start_date
 
@@ -94,14 +99,17 @@ def get_city_name_from_coordinates(latitude: float, longitude: float) -> str:
 
 def get_time_delta(start_date: str, end_date: str) -> int:
 
+    # Il time range di default delle richieste e' di 7 giorni (documentazione APIs)
     DEFAULT_TIME_DELTA: int = 7
+
+    # Formato della data passata alla funzione "strptime"
     DATE_FORMAT: str = '%Y-%m-%d'
     
+    # Se uno dei due valori e' None, allora il time delta e' quello di default
     if start_date == None or end_date == None:
         return DEFAULT_TIME_DELTA
     
-    if start_date < end_date:
-        time_delta: int = (datetime.strptime(end_date, DATE_FORMAT) - datetime.strptime(start_date, DATE_FORMAT)).days
+    time_delta: int = (datetime.strptime(end_date, DATE_FORMAT) - datetime.strptime(start_date, DATE_FORMAT)).days
 
     return time_delta
 
@@ -114,21 +122,31 @@ def write_json(file_name: str):
 
 if __name__ == '__main__':
 
+    # Ottenimento del parser
     parser: argparse.ArgumentParser = config_parser()
     
+    # Ottenimento degli argomenti passati al parser
     parser_args: argparse.Namespace = parser.parse_args()
     
+    # Ottenimento del response body della richiesta
     response_body: dict = get_response_body(base_url=BASE_URL, 
                                             endpoint=FORECAST_ENDPOINT, 
                                             parser_args=parser_args)
 
+    # Se la richiesta e' andata a buon fine
     if response_body:
         city: str = get_city_name_from_coordinates(latitude=parser_args.lat, 
                                                    longitude=parser_args.lon)
     
+        # Ottenimento del time delta
         time_delta = get_time_delta(start_date=parser_args.start_date,
                                     end_date=parser_args.end_date)
     
+        # Composizione del nome del file JSON
         file_name: str = f'{city}_{FORECAST_ENDPOINT}_{time_delta}_day{'s' if time_delta > 1 else ''}.json'
 
+        # Scrittura del file
         write_json(file_name=file_name)
+
+    else:
+        print('Attenzione! Start Date e\' maggiore o uguale di End Date!')
