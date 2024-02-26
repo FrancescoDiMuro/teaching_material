@@ -8,10 +8,12 @@ services:
     depends_on:
       cdab-db:
         condition: service_healthy
+    tty: true
   cdab-scripts:
     build: /cdab-scripts/
     image: cdab-scripts-image:latest
     container_name: cdab-scripts
+    tty: true
   cdab-db:
     image: mysql:latest
     container_name: cdab-db

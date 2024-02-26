@@ -59,15 +59,13 @@ def get_response_body(base_url: str, endpoint: str, parser_args: argparse.Namesp
         'hourly': variables
     }
 
-    if start_date >= end_date:
-        return None
-
     # Aggiunta dei query parameters "start_time" e "end_time" nel caso in cui siano valorizzati
-    if start_date:
-        query_parameters['start_date'] = start_date
-
-    if end_date:
-        query_parameters['end_date'] = end_date
+    if start_date and end_date:
+        if start_date >= end_date:
+            return None
+        else:
+            query_parameters['start_date'] = start_date
+            query_parameters['end_date'] = end_date
 
     # Definizione dell'URL della richiesta
     request_url: str = f'{base_url}/{endpoint}'
@@ -92,7 +90,9 @@ def get_city_name_from_coordinates(latitude: float, longitude: float) -> str:
     coordinates: str = f'{latitude},{longitude}'
     location: Location = geolocator.reverse(coordinates)
     address: dict = location.raw['address']
-    city: str = address['city']
+
+    # Nel caso in cui la citta' non venga trovata, viene settato un valore di default
+    city: str = address.get('city', 'Unknown')
 
     return city
 
