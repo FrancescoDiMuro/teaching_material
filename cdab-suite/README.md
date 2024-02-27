@@ -152,21 +152,35 @@ docker container exec --interactive cdab-scripts python cdab-load_data_to_mysql.
 Per verificare che i dati siano stati correttamente importati, possiamo utilizzare la sessione TTY di MySQL, connettendoci al DB con il comando:
 
 ```console
-mysql --host=localhost --database=cdab-db --user=superuser --password=some-random-password
+docker container exec --interactive --tty cdab-db mysql --host=localhost --database=cdab-db --user=superuser --password=some-random-password
 ```
 
 ed eseguendo la query:
 
 ```sql
-SELECT BIN_TO_UUID(`values`.id) as id, 
+SELECT BIN_TO_UUID(`values`.id) AS id, 
        `values`.timestamp,
-       variables.name,
+       variables.name as variable,
        `values`.value
 FROM `cdab-db`.values 
 RIGHT JOIN `cdab-db`.variables
 ON variables.id = `values`.variable_id
 WHERE variables.name = 'temperature_2m'
 ORDER BY timestamp;
+```
+
+Possiamo ottenere il valore minimo, massimo e medio della variabile selezionata per tutti i dati nella tabella dei valori associati a essa eseguendo la query seguente:
+
+```sql
+SELECT variables.name as variable,
+       MIN(`values`.value) AS min,
+       MAX(`values`.value) AS max,
+       ROUND(AVG(`values`.value), 1) AS avg
+FROM `cdab-db`.values 
+RIGHT JOIN `cdab-db`.variables
+ON variables.id = `values`.variable_id
+WHERE variables.name = 'temperature_2m'
+GROUP BY variables.name;
 ```
 
 **Nota Bene:** il nome della tabella _values_ e' tra due backtick perche' values e' una parola chiave riservata di MySQL, che non potrebbe essere utilizzata come nome di una tabella.

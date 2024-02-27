@@ -2,9 +2,13 @@ from datetime import datetime
 from geopy.geocoders import Nominatim
 from geopy.location import Location
 from json import dump
-import requests
 import argparse
+import logging
+import requests
 
+
+# Impostazione del logger di default
+logging.basicConfig(level='DEBUG', format='%(name)s - %(asctime)s - %(message)s')
 
 # Definizione del base URL e dell'endpoint per effettuare la richiesta
 BASE_URL: str = 'https://api.open-meteo.com/v1'
@@ -15,7 +19,7 @@ def config_parser() -> argparse.ArgumentParser:
     # Creazione e configurazione del parser per la CLI
     parser = argparse.ArgumentParser(prog='cdab-client', 
                                      description='CDAB-Client used to gather data from Weather API and save them to a JSON file.',
-                                     epilog='More info at [link]')
+                                     epilog='More info at https://github.com/FrancescoDiMuro/teaching_material/tree/main/cdab-suite')
 
     parser.add_argument('--lat', 
                         type=float,
@@ -67,14 +71,20 @@ def get_response_body(base_url: str, endpoint: str, parser_args: argparse.Namesp
             query_parameters['start_date'] = start_date
             query_parameters['end_date'] = end_date
 
+    logging.debug(f'Query parameters => {query_parameters}')
+
     # Definizione dell'URL della richiesta
     request_url: str = f'{base_url}/{endpoint}'
+
+    logging.debug(f'Request URL => {request_url}')
 
     # Effettuazione della richiesta
     response: requests.Response = requests.get(url=request_url, params=query_parameters)
 
     # Se la rihiesta e' andata a buon fine
     if response.status_code == 200:
+
+        logging.debug(f'Response Status Code => {response.status_code}')
 
         # Ottenimento del response body
         response_body: dict = response.json()
@@ -94,6 +104,8 @@ def get_city_name_from_coordinates(latitude: float, longitude: float) -> str:
     # Nel caso in cui la citta' non venga trovata, viene settato un valore di default
     city: str = address.get('city', 'Unknown')
 
+    logging.debug(f'The city from coordinates {coordinates} is "{city}"')
+
     return city
 
 
@@ -107,6 +119,7 @@ def get_time_delta(start_date: str, end_date: str) -> int:
     
     # Se uno dei due valori e' None, allora il time delta e' quello di default
     if start_date == None or end_date == None:
+        logging.debug(f'Setting default time delta ({DEFAULT_TIME_DELTA}) days because "start_date" and "end_date" are empty')
         return DEFAULT_TIME_DELTA
     
     # Calcolo del time delta (in giorni)
@@ -118,6 +131,7 @@ def write_json(file_name: str):
     
     # Creazione e apertura del file in modalita' "scrittura", serializzando la response per essere scritta nel file
     with open(file=file_name, mode='w') as output:
+        logging.debug('Writing JSON')
         dump(response_body, output)
 
 
@@ -129,6 +143,8 @@ if __name__ == '__main__':
     # Ottenimento degli argomenti passati al parser
     parser_args: argparse.Namespace = parser.parse_args()
     
+    logging.debug(f'{'-' * 10} Starting request {'-' * 10}')
+
     # Ottenimento del response body della richiesta
     response_body: dict = get_response_body(base_url=BASE_URL, 
                                             endpoint=FORECAST_ENDPOINT, 
@@ -150,4 +166,4 @@ if __name__ == '__main__':
         write_json(file_name=file_name)
 
     else:
-        print('Attenzione! Start Date e\' maggiore o uguale di End Date!')
+        print('Start Date >= End Date!')
