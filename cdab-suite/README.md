@@ -1,3 +1,12 @@
+# Docker
+## Indice:
+- [Definizione della struttura dell'applicazione](#definizione-della-struttura-dellapplicazione)
+- [Creazione del file compose.yaml](#creazione-del-file-composeyaml)
+- [Scenario dell'applicazione](#scenario-dellapplicazione)
+- [Creazione dei servizi](#creazione-dei-servizi)
+- [Creazione dell'infrastruttura Docker](#creazione-dellinfrastruttura-docker)
+- [Utilizzo della Suite](#utilizzo-della-suite)
+
 ## Definizione della struttura dell'applicazione
 Per prima cosa, e' necessario individuare quali sono i servizi che devono essere creati affinche' l'applicazione funzioni come vogliamo.
 
@@ -11,7 +20,9 @@ La struttura dell'applicazione sara' quindi composta da tre servizi:
 
 Con questa definizione, possiamo iniziare a comporre l'infrastruttura dell'applicazione.
 
-## Composizione del file compose.yaml
+[Torna all'indice ↑](#indice)
+
+## Creazione del file compose.yaml
 Il punto di partenza per lo sviluppo di quest'applicazione e' il file [compose.yaml](compose.yaml), nel quale viene descritta la struttura del progetto precedentemente analizzata e descritta e, con un comando specifico, questa viene creata nell'ambiente Docker.<br>
 Iniziamo quindi a dare forma all'applicazione con la suddivisione dei vari servizi.
 
@@ -26,13 +37,17 @@ Il servizio cdab-scripts e' responsabile dell'esecuzione di scripts per l'estrap
 Il servizio cdab-db e' responsabile della persistenza dei dati, grazie all'utilizzo di un database gestito da MySQL.<br>
 Questo servizio si occupa di mantenere i dati in memoria, servendosi di un volume mappato all'host per rendere i dati persistenti e disponibili al servizio `cdab-scripts`.
 
-## Scenario
+[Torna all'indice ↑](#indice)
+
+## Scenario dell'applicazione
 
 Prima di dare uno sguardo all'infrastruttura vera e propria della suite `cdab-service`, e' doveroso descrivere lo scenario dell'applicazione, in modo tale da comprenderne la struttura in maniera completa.
 
 Si pensi di voler estrapolare dei dati meteorologici da un servizio REST APIs, salvarli su un DB, e utilizzare i records salvati per effettuare dei calcoli e persistere i risultati su DB o su file.
 
 Grazie a questa premessa, possiamo quindi fare un confronto tra la nostra infrastruttura e quella descritta dallo scenario, andando a confermare quelli che sono i ruoli dei vari servizi.
+
+[Torna all'indice ↑](#indice)
 
 ## Creazione dei servizi
 
@@ -82,10 +97,12 @@ Ora, possiamo dare uno sguardo al codice presente nello script [cdab-load_data_t
 
 ### Servizio `cdab-db`
 
-Il terzo e ultimo servizio che andremo a creare e' `cdab-db`.
+Il terzo e ultimo servizio che andremo a creare e' `cdab-db`.<br>
 Questo servizio non ha un Dockerfile dedicato, poiche' utilizzeremo direttamente l'immagine Docker ufficiale di MySQL.
 
-## Creazione dell'infrastruttura
+[Torna all'indice ↑](#indice)
+
+## Creazione dell'infrastruttura Docker
 
 Una volta descritta l'infrastruttura della suite e delle sue componenti, possiamo procedere con la creazione (o build) della stessa, utilizzando il comando:
 
@@ -101,7 +118,9 @@ docker compose down --volumes
 
 il quale, con il flag `--volumes`, provvede a eliminare i volumi non utilizzati dai containers.
 
-## Utilizzo della suite
+[Torna all'indice ↑](#indice)
+
+## Utilizzo della Suite
 
 Ora che la suite e' configurata ed avviata, possiamo iniziare a utilizzarla.
 
@@ -151,3 +170,5 @@ ORDER BY timestamp;
 ```
 
 **Nota Bene:** il nome della tabella _values_ e' tra due backtick perche' values e' una parola chiave riservata di MySQL, che non potrebbe essere utilizzata come nome di una tabella.
+
+[Torna all'indice ↑](#indice)
