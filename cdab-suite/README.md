@@ -34,26 +34,111 @@ Si pensi di voler estrapolare dei dati meteorologici da un servizio REST APIs, s
 
 Grazie a questa premessa, possiamo quindi fare un confronto tra la nostra infrastruttura e quella descritta dallo scenario, andando a confermare quelli che sono i ruoli dei vari servizi.
 
-https://api.open-meteo.com/v1/
+## Creazione dei servizi
 
+### Servizio `cdab-client`
 
-python -m pip install mysql-connector-python
+Il primo servizio che andremo a creare e' `cdab-client`, poiche' senza questo servizio, i dati non possono essere estrapolati e passati agli altri servizi per essere processati.
 
-python -m pip install python-dotenv
+Dopo aver creato una cartella per l'applicazione, passiamo alla creazione dell'ambiente virtuale, all'interno del quale, dopo averlo opportunamente attivato, andremo a installare le due librerie necessarie, ovvero _requests_ e _geopy_, utilizzando i comandi:
 
+```console
+pip install geopy
+pip install requests
+```
+
+Una volta installate le librerie sopra riportate, possiamo passare all'esportazione dei requisiti per poterli copiare all'interno del container per la successiva installazione degli stessi, utilizzando il comando:
+
+```
 pip freeze > requirements.txt
+```
 
+Completato questo passaggio, possiamo definire il [Dockerfile](/cdab-client/Dockerfile), ovvero la base del container che eseguira' il servizio.
+
+Ora, possiamo dare uno sguardo al codice presente nello script [cdab-client.py](./cdab-client/cdab-client.py)
+
+### Servizio `cdab-scripts`
+
+Il secondo servizio che andremo a creare e' `cdab-scripts`.
+
+Dopo aver creato una cartella per l'applicazione, passiamo alla creazione dell'ambiente virtuale, all'interno del quale, dopo averlo opportunamente attivato, andremo a installare le due librerie necessarie, ovvero _mysql-connector-python_ e _python-dotenv_, utilizzando i comandi:
+
+```console
+pip install mysql-connector-python
+pip install python-dotenv
+```
+
+Una volta installate le librerie sopra riportate, possiamo passare all'esportazione dei requisiti per poterli copiare all'interno del container per la successiva installazione degli stessi, utilizzando il comando:
+
+```
+pip freeze > requirements.txt
+```
+
+Completato questo passaggio, possiamo definire il [Dockerfile](/cdab-scripts/Dockerfile), ovvero la base del container che eseguira' il servizio.
+
+E' doveroso dare uno sguardo al file [.env](/cdab-scripts/.env)
+
+Ora, possiamo dare uno sguardo al codice presente nello script [cdab-load_data_to_mysql.py](./cdab-scripts/cdab-load_data_to_mysql.py)
+
+### Servizio `cdab-db`
+
+Il terzo e ultimo servizio che andremo a creare e' `cdab-db`.
+Questo servizio non ha un Dockerfile dedicato, poiche' utilizzeremo direttamente l'immagine Docker ufficiale di MySQL.
+
+## Creazione dell'infrastruttura
+
+Una volta descritta l'infrastruttura della suite e delle sue componenti, possiamo procedere con la creazione (o build) della stessa, utilizzando il comando:
+
+```console
 docker compose up --detatch
+```
 
-docker compose down --rmi local
+Per stoppare e cancellare la suite, si puo' utilizzare il comando: 
 
+```console
+docker compose down --volumes
+```
+
+il quale, con il flag `--volumes`, provvede a eliminare i volumi non utilizzati dai containers.
+
+## Utilizzo della suite
+
+Ora che la suite e' configurata ed avviata, possiamo iniziare a utilizzarla.
+
+Il primo comando da lanciare per far si' che i dati possano essere ottenuti dalle REST APIs ([Open-Meteo](https://open-meteo.com/en/docs/)) e':
+
+```console
 docker container exec cdab-client python cdab-client.py --lat 45.464664 --lon 9.188540 --variables "temperature_2m"
+```
+
+Questo comando generera' un file con estensione JSON, il quale potra' essere processato dallo script *cdab-load_data_to_mysql.py* nel container `cdab-scripts`.<br>
+Per importare tale file nel DB MySQL, dobbiamo prima copiarlo localmente, utilizzando il comando
+
+```console
 docker cp cdab-client:/app/Milano_forecast_7_days.json .
+```
+
+Una volta copiato il file localmente, possiamo copiarlo nel container di destinazione, ovvero `cdab-scripts`, utilizzando il comando:
+
+```console
 docker cp Milano_forecast_7_days.json cdab-scripts:/app/
+```
+
+Una volta copiato il file nel container, possiamo iniziare il processo di importazione del file utilizzando il comando:
+
+```console
 docker container exec --interactive cdab-scripts python cdab-load_data_to_mysql.py
+```
 
+Per verificare che i dati siano stati correttamente importati, possiamo utilizzare la sessione TTY di MySQL, connettendoci al DB con il comando:
+
+```console
 mysql --host=localhost --database=cdab-db --user=superuser --password=some-random-password
+```
 
+ed eseguendo la query:
+
+```sql
 SELECT BIN_TO_UUID(`values`.id) as id, 
        `values`.timestamp,
        variables.name,
@@ -63,5 +148,6 @@ RIGHT JOIN `cdab-db`.variables
 ON variables.id = `values`.variable_id
 WHERE variables.name = 'temperature_2m'
 ORDER BY timestamp;
+```
 
-docker compose down --volumes
+**Nota Bene:** il nome della tabella _values_ e' tra due backtick perche' values e' una parola chiave riservata di MySQL, che non potrebbe essere utilizzata come nome di una tabella.
