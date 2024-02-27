@@ -12,12 +12,30 @@ La struttura dell'applicazione sara' quindi composta da tre servizi:
 Con questa definizione, possiamo iniziare a comporre l'infrastruttura dell'applicazione.
 
 ## Composizione del file compose.yaml
-Il punto di partenza per lo sviluppo di quest'applicazione e' il file [compose.yaml](compose.yaml), grazie al quale viene descritta la struttura del progetto precedentemente analizzata e descritta e, con un comando specifica, la stessa viene creata nell'ambiente Docker.<br>
+Il punto di partenza per lo sviluppo di quest'applicazione e' il file [compose.yaml](compose.yaml), nel quale viene descritta la struttura del progetto precedentemente analizzata e descritta e, con un comando specifico, questa viene creata nell'ambiente Docker.<br>
 Iniziamo quindi a dare forma all'applicazione con la suddivisione dei vari servizi.
 
 ### Servizio `cdab-client`
 Il servizio cdab-client e' responsabile dell'ottenimento dei dati dalle test suites configurate.
-Questo servizio estrapola i dati attraverso delle REST APIs, utilizzando i vari risultati per una successiva elaborazione locale con l'utilizzo degli scripts del servizio `cdab-scripts`.
+Questo servizio estrapola i dati attraverso delle REST APIs, utilizzando i vari risultati per una successiva elaborazione con l'utilizzo degli scripts del servizio `cdab-scripts`.
+
+### Servizio `cdab-scripts`
+Il servizio cdab-scripts e' responsabile dell'esecuzione di scripts per l'estrapolazione e l'elaborazione dei dati ottenuti tramite il servizio `cdab-client`.
+
+### Servizio `cdab-db`
+Il servizio cdab-db e' responsabile della persistenza dei dati, grazie all'utilizzo di un database gestito da MySQL.<br>
+Questo servizio si occupa di mantenere i dati in memoria, servendosi di un volume mappato all'host per rendere i dati persistenti e disponibili al servizio `cdab-scripts`.
+
+## Scenario
+
+Prima di dare uno sguardo all'infrastruttura vera e propria della suite `cdab-service`, e' doveroso descrivere lo scenario dell'applicazione, in modo tale da comprenderne la struttura in maniera completa.
+
+Si pensi di voler estrapolare dei dati meteorologici da un servizio REST APIs, salvarli su un DB, e utilizzare i records salvati per effettuare dei calcoli e persistere i risultati su DB o su file.
+
+Grazie a questa premessa, possiamo quindi fare un confronto tra la nostra infrastruttura e quella descritta dallo scenario, andando a confermare quelli che sono i ruoli dei vari servizi.
+
+https://api.open-meteo.com/v1/
+
 
 python -m pip install mysql-connector-python
 
@@ -27,8 +45,23 @@ pip freeze > requirements.txt
 
 docker compose up --detatch
 
-docker cp .\main.py cdab-client:/app/main.py
-
-docker container start cdab-client --attach
-
 docker compose down --rmi local
+
+docker container exec cdab-client python cdab-client.py --lat 45.464664 --lon 9.188540 --variables "temperature_2m"
+docker cp cdab-client:/app/Milano_forecast_7_days.json .
+docker cp Milano_forecast_7_days.json cdab-scripts:/app/
+docker container exec --interactive cdab-scripts python cdab-load_data_to_mysql.py
+
+mysql --host=localhost --database=cdab-db --user=superuser --password=some-random-password
+
+SELECT BIN_TO_UUID(`values`.id) as id, 
+       `values`.timestamp,
+       variables.name,
+       `values`.value
+FROM `cdab-db`.values 
+RIGHT JOIN `cdab-db`.variables
+ON variables.id = `values`.variable_id
+WHERE variables.name = 'temperature_2m'
+ORDER BY timestamp;
+
+docker compose down --volumes

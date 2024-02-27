@@ -1,0 +1,15 @@
+Project cdab_service {
+    db_type: 'mysql'
+}
+
+Table variables {
+    id UUID [primary key, not null]
+    name string [not null, unique]
+}
+
+Table values {
+    id UUID [primary key, not null]
+    timestamp datetime [not null]
+    variable_id UUID [ref: > variables.id]
+    value float [not null]
+}

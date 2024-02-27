@@ -109,6 +109,7 @@ def get_time_delta(start_date: str, end_date: str) -> int:
     if start_date == None or end_date == None:
         return DEFAULT_TIME_DELTA
     
+    # Calcolo del time delta (in giorni)
     time_delta: int = (datetime.strptime(end_date, DATE_FORMAT) - datetime.strptime(start_date, DATE_FORMAT)).days
 
     return time_delta

@@ -5,24 +5,27 @@ services:
     build: /cdab-client/
     image: 'cdab-client-image:latest'
     container_name: cdab-client
+    tty: true
     depends_on:
       cdab-db:
         condition: service_healthy
-    tty: true
   cdab-scripts:
     build: /cdab-scripts/
     image: cdab-scripts-image:latest
     container_name: cdab-scripts
     tty: true
+    depends_on:
+      cdab-db:
+        condition: service_healthy
   cdab-db:
     image: mysql:latest
     container_name: cdab-db
     env_file:
       - /cdab-scripts/.env
     ports:
-      - 3306:3306/tcp
+      - 5000:3306/tcp
     volumes:
-      - cdab-data:/app/cdab-data
+      - cdab-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "superuser", "-p$$MYSQL_PASSWORD"]
 volumes:
