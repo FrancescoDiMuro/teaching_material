@@ -95,10 +95,15 @@ if is_connected:
         connection.commit()
 
         # Query per selezionare le variabili dalla tabella "variables"
-        variables_select_statement: str = 'SELECT BIN_TO_UUID(id) as id, name FROM variables;'
-
+        variables_select_statement: str = '''SELECT BIN_TO_UUID(id) as id, name
+                                             FROM variables 
+                                             WHERE name IN (%s);'''
+        
+        # Filtro nella SELECT per le variabili presenti nel file JSON
+        variables_in_filter: list = [','.join([variable[1] for variable in variables])]
+        
         # Esecuzione della query e ottenimento del risultato dello stesso
-        cursor.execute(variables_select_statement)
+        cursor.execute(variables_select_statement, variables_in_filter)
         variable_ids: list = cursor.fetchall()
 
         # Per ogni variabile
